@@ -1,4 +1,4 @@
-import { fetchAPI } from "@/src/lib/api";
+import http, { fetchAPI } from "@/src/lib/api";
 import NextAuth, { User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
@@ -24,11 +24,6 @@ export default NextAuth({
       type: "credentials",
       credentials: {},
       authorize: async (credentials, req): Promise<UserType | ErrorType> => {
- 
-        // axios
-        const $axios = axios.create();
-        $axios.defaults.baseURL = "http://localhost:3333/api";
-
         try {
           const { phone, password } = credentials as {
             phone: string;
@@ -37,14 +32,14 @@ export default NextAuth({
             fullname: string;
           };
 
-          const { data } = await $axios.get("/clients/phone/" + phone);
+          const { data } = await http.post("/auth/local" + phone);
 
           /**
            * sign in a user
            * params: phone, password
            */
           if (data) {
-            const { id, attributes } = data;
+            const { user, jwt } = data;
             const {
               password: clientPassword,
               fullname: clientFullname,
@@ -55,15 +50,7 @@ export default NextAuth({
               password,
               clientPassword
             );
-            if (checkPassword)
-              return {
-                id,
-                fullname: clientFullname,
-                role: clientRole,
-                phone: clientPhone,
-              };
-            else throw new Error("password mismatch.");
-          }
+          } else throw new Error("password mismatch.");
         } catch (error) {
           throw new Error("error:" + error.message);
         }

@@ -131,7 +131,7 @@ function Profile({ data }) {
     <UserPopup user={userInfo} setUser={setUserInfo}  popupOpen={popupOpen} setPopupOpen={setPopupOpen} />
   </Layout>;
 }
-export default withSession(Profile);
+export default Profile;
 
 const PenIcon = () => <svg className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
     <g>
