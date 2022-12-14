@@ -2,7 +2,7 @@ import { useState } from 'react'
 import ReactSlidy from 'react-slidy'
 
 
-const SLIDES = ['pictures/1.jpg', 'pictures/2.jpg', 'pictures/3.jpg', 'pictures/4.jpg']
+const SLIDES = ['pictures/1.jpg', 'pictures/2.jpg', 'pictures/3.jpg']
 
 const createStyles = isActive => ({
   background: 'transparent',

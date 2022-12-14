@@ -1,11 +1,15 @@
 import { Layout } from "@/components/layouts";
 import withSession from "@/src/hooks/withSession";
-import { Block, BlockHeader, BlockTitle, List, ListItem, Toggle, Button, Dialog, DialogButton } from "konsta/react";
-import { useState } from "react";
-import UserPopup from "@/components/profile/UserPopup";
+import { Block, BlockTitle, List, ListItem, Button, Dialog, DialogButton } from "konsta/react";
+import { useState } from 'react';
+import {UserPopup} from "@/components/profile/UserPopup";
 import LogoutIcon from "@/components/icons/logout-circle-line";
 import { signOut } from "next-auth/react";
 import { VictoryChart, VictoryArea, VictoryAxis } from 'victory';
+import Loader from "@/components/loader";
+import axios from 'axios';
+import useSWR from 'swr';
+
 const dataChart = [
   { x: "حمل", y: 2 },
   { x: "ثور", y: 3 },
@@ -19,41 +23,21 @@ const dataChart = [
   { x: "جدی", y: 0 },
   { x: "دلو", y: 2 },
   { x: "حوت", y: 1 },
-]
-function Profile({ data }) {
-  const [userStatus, userUserStatus] = useState(false);
+];
+const fetcher = (url, method = "GET") => axios(url, { method: method }).then(res => res.data);
+
+function Profile({data, role}) {
+  const { data: user, error } = useSWR("/api/me", fetcher);
   const [popupOpen, setPopupOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
-  const user = {
-    id: "1",
-    fullname: "علی",
-    location: "کابل",
-    gender: "MALE",
-    phone: "0744227255",
-    age: "20",
-    password: "123578",
-    bloodgroup: "A+",
-    status: false,
-  }
-  const [userInfo, setUserInfo] = useState({
-    fullname: user.fullname,
-    password: user.password,
-    phone: user.phone,
-    age: user.age,
-    location: user.location,
-    gender: user.gender,
-    bloodgroup: user.bloodgroup,
-    status: user.status,
-  });
-
-  const hanldeOnChange = (e) => {
-    setUserInfo({...userInfo, status: !userInfo.status});
-  }
-  return <Layout title="profile">
+  if (!user ) return <Loader />
+  if (error) return <div>{error}</div>
+  console.log('data :>> ', data);
+  return <Layout title="profile" role={role}>
     <Block className="flex justify-between items-center py-3">
-      <b>{userInfo.fullname}</b>
+      <b>{user.fullname}</b>
       <div>
-        <Button rounded onClick={() => setPopupOpen(true)}><PenIcon/>تغییر اطلاعات</Button>
+        <Button rounded onClick={() => setPopupOpen(true)}><PenIcon />تغییر اطلاعات</Button>
       </div>
     </Block>
     <Block strong inset>
@@ -79,34 +63,14 @@ function Profile({ data }) {
         />
       </VictoryChart>
     </Block>
-    <BlockTitle >وضعیت</BlockTitle>
-
-    <BlockHeader>
-      شما میتوانید وضعیت خویش برای اهدای خون فعال یا غیر فعال کنید.
-    </BlockHeader>
-    <List strong inset>
-      <ListItem
-        label
-        title={`خون ${userInfo.status ? "میدهم" : "نمیدهم"}`}
-        className="rtl"
-        after={
-          <Toggle
-            component="div"
-            name="status"
-            value={userInfo.status}
-            checked={userInfo.status === true}
-            onChange={hanldeOnChange}
-          />
-        }
-      />
-    </List>
-    <BlockTitle >معلومات شما</BlockTitle>
+  
+    <BlockTitle>معلومات شما</BlockTitle>
     <List strongIos insetIos>
-      <ListItem header="گروپ خون" title="A+" />
-      <ListItem header="موقعیت" title="کابل" />
-      <ListItem header="شماره موبایل" title="0787227733" />
-      <ListItem header="سن" title="12" />
-      <ListItem header="جنسیت" title="مرد" />
+      <ListItem header="گروپ خون" title={user.bloodgroup} />
+      <ListItem header="ولایت" title={user.city} />
+      <ListItem header="شماره موبایل" title={user.phone} />
+      <ListItem header="سن" title={user.age} />
+      <ListItem header="جنسیت" title={user.gender === true ? 'اقا' : 'خانم'} />
     </List>
     <BlockTitle >میتوانید از حسابتان خارج شوید</BlockTitle>
     <Block strong>
@@ -128,14 +92,16 @@ function Profile({ data }) {
         </>
       }
     />
-    <UserPopup user={userInfo} setUser={setUserInfo}  popupOpen={popupOpen} setPopupOpen={setPopupOpen} />
+    <UserPopup user={user} session={data} popupOpen={popupOpen} setPopupOpen={setPopupOpen} />
   </Layout>;
 }
-export default Profile;
+
+
+export default withSession(Profile);
 
 const PenIcon = () => <svg className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-    <g>
-        <path fill="none" d="M0 0h24v24H0z"/>
-        <path fill="currentColor" d="M15.728 9.686l-1.414-1.414L5 17.586V19h1.414l9.314-9.314zm1.414-1.414l1.414-1.414-1.414-1.414-1.414 1.414 1.414 1.414zM7.242 21H3v-4.243L16.435 3.322a1 1 0 0 1 1.414 0l2.829 2.829a1 1 0 0 1 0 1.414L7.243 21z"/>
-    </g>
+  <g>
+    <path fill="none" d="M0 0h24v24H0z" />
+    <path fill="currentColor" d="M15.728 9.686l-1.414-1.414L5 17.586V19h1.414l9.314-9.314zm1.414-1.414l1.414-1.414-1.414-1.414-1.414 1.414 1.414 1.414zM7.242 21H3v-4.243L16.435 3.322a1 1 0 0 1 1.414 0l2.829 2.829a1 1 0 0 1 0 1.414L7.243 21z" />
+  </g>
 </svg>

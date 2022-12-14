@@ -1,64 +1,48 @@
-import { Block } from "konsta/react";
+import { Block, List, BlockTitle } from 'konsta/react';
 import { Layout } from "../layouts";
 import Carousel from "./carousel";
 import ActivitiesCarousel from "./ActivitiesCarousel";
-import { fetchAPI } from "@/src/lib/api";
-import { useEffect, useState } from "react";
-import { GetServerSideProps } from "next/types";
 import useSWR from 'swr';
-import { getSession } from "next-auth/react";
+import withSession from "@/src/hooks/withSession";
+import { client } from '../../src/lib/api';
+import Loader from "../loader";
 // ----------------------------------------------------------------
+const HomePage = ({ role }) => {
+  const { data: donors, error: E_Donors } = useSWR("/api/donors", client)
+  const { data: acceptors, error: E_Acceptors } = useSWR("/api/acceptors", client)
+  const DonorList = () => (
+    <>
+    <BlockTitle>لیست اهداکنندگان</BlockTitle>
+    <List strongIos insetIos>
+      {donors ? donors.map(donor => (
+        <div className="flex flex-row justify-between p-3">
+          <p>{donor.fullname}</p>
+          <p>A+</p>
+        </div>
+      )) : <Loader />}
+    </List>
+    </>
+  )
+  const AcceptorList = () => (
+    <>
+    <BlockTitle>لیست درخواست کنندگان</BlockTitle>
+    <List strongIos insetIos>
+      {acceptors ? acceptors.map(item => (
+        <div className="flex flex-row justify-between p-3">
+          <p>{item.fullname}</p>
+          <p>کابل</p>
+        </div>
+      )) : <Loader />}
+    </List>
+    </>
+  )
 
-const HomePage = () => {
-  const { data, error } = useSWR(`clients`, fetcher)
-  if (error) return <div>failed to load</div>
-  if (!data) return <div>loading...</div>
-  return <Layout title='Home' >
+  return <Layout title='Home' role={role}>
     <Block>
       <Carousel />
     </Block>
-    {data.data.map((item) => (
-      <div key={item.id}>{item.attributes.fullname}</div>
-    ))}
-    <ActivitiesCarousel />
-    <section>requests</section>
-    <section>donors</section>
-
+    {role === "acceptor" ? <DonorList/> : <AcceptorList/>}
   </Layout>
 }
 
-export default HomePage;
-// ----------------------------------------------------------------
-const fetcher = path => fetch("http://localhost:3333/api/"+path).then(r => r.json())
-
-
-const accepters = async () => {
-  const url = new URLSearchParams()
-  url.set("filters[phone][$eq]", "0744227255")
-  const res = await fetch("http://localhost:3333/api/accepters?" + url.toString(), {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    method: "GET"
-  });
-  const data = await res.json();
-  return data;
-}
-
-
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession();
-  const user = await accepters();
-  if (!session) {
-    return {
-      redirect: {
-        destination: '/api/auth/signin?callbackUrl=http://localhost:3000/',
-        permanent: false
-      }
-    }
-  }
-  return {
-    props: { user }
-  };
-}
+export default withSession(HomePage);

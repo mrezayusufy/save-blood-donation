@@ -1,10 +1,10 @@
 import { Layout } from "@/components/layouts";
+import withSession from "@/src/hooks/withSession";
 import { BlockTitle, Button, Card, List, ListItem } from "konsta/react";
 import { UserLocation } from '../../components/icons';
 
-export default function Requests() {
-  const role = "ACCEPTOR"
-  return <Layout title="Requests">
+const Requests = ({data, role})=> {
+  return <Layout title="Requests" role={role}>
     <BlockTitle className="text-xl mb-4">لیست درخواست ها</BlockTitle>
     <List strongIos>
       <ListItem
@@ -32,3 +32,4 @@ export default function Requests() {
     </List>
   </Layout>;
 }
+export default withSession(Requests);

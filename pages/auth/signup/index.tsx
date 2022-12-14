@@ -1,9 +1,8 @@
-import { Block, BlockHeader, BlockTitle, Button, List, ListGroup, ListInput, ListItem, Navbar, Radio } from "konsta/react";
+import { Block, BlockHeader, BlockTitle, Button, List, ListInput, ListItem, Navbar, Radio, Toast } from "konsta/react";
 import { signIn } from "next-auth/react";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from "axios";
-import http from "@/src/lib/api";
 type UserType = {
   phone: string,
   password: string,
@@ -11,40 +10,36 @@ type UserType = {
   fullname: string
 }
 export default () => {
-  const [loading, setLoading] = useState(false)
-  const [user, setUser] = useState<UserType>({ fullname: "", phone: "", password: "", role: "DONOR" })
+  const [loading, setLoading] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false)
+  const [error, setError] = useState(null)
+  const [user, setUser] = useState<UserType>({ fullname: "", phone: "", password: "", role: "donor" })
   const router = useRouter()
-  const handleSubmit = async (e: React.SyntheticEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const reqUser = {
-      fullname: user.fullname,
-      phone: user.phone,
-      password: user.password,
-      role: user.role
-    };
-
-     
     setLoading(true);
-    // localhost:3333/api/auth/local/register
-    const {data} = await http.post("/auth/local/register", reqUser);
-    if (data){
-      console.log(data);
-      localStorage.setItem("role", data.user.userRole);
-      localStorage.setItem("token", data.jwt)
-      setLoading(false);
-      router.push("/profile")
-    } 
+    await signIn("credentials", user)
+    .then((data) => {
+      localStorage.setItem("role", user.role);
+      console.log('data :>> ', data);
+      if(data) {
+        setError(data.error);
+      }  
+    })
+    setLoading(false);
   }
+
   const handleOnChange = (e) => {
     e.preventDefault();
     setUser({ ...user, [e.target.name]: e.target.value });
   }
 
-  
+
   return <div>
     <Navbar title='Save' />
     <main className='my-12 container mx-auto max-w-[320px]'>
       <BlockTitle >ایجاد حساب جدید</BlockTitle>
+      
       <form onSubmit={handleSubmit}>
         <Block strongIos insetIos>
           <List strong>
@@ -79,9 +74,26 @@ export default () => {
         <BlockTitle>ورود به سیستم</BlockTitle>
         <BlockHeader>اگر در این برنامه حساب دارید میتوانید به صفحه لاگین مراجعه کنید..</BlockHeader>
         <List>
-          <Button large colors={{ fillBgIos: "bg-green-700", fillActiveBgIos: "bg-green-900" }} onClick={() => router.replace("/auth/signin")}>ورود</Button>
+          <Button disabled={loading} large colors={{ fillBgIos: "bg-green-700", fillActiveBgIos: "bg-green-900" }} onClick={() => router.replace("/auth/signin")}>ورود</Button>
         </List>
       </Block>
+      <Toast
+        position="left"
+        opened={error}
+        button={
+          <Button
+            rounded
+            clear
+            small
+            inline
+            onClick={() => setError(null)}
+          >
+            &#10060;
+          </Button>
+        }
+      >
+        <div className="shrink">{error}</div>
+      </Toast>
     </main>
   </div>;
 }

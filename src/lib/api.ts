@@ -7,9 +7,11 @@ export function getStrapiURL(path = "") {
 
 
 const http = axios.create({
-  baseURL: getStrapiURL()+"/api",
+  baseURL: getStrapiURL()+"/api/",
   headers: {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
   }
 })
+
 export default http;
+export const client = async(url) => await axios.get(url).then((res) => res.data);  
