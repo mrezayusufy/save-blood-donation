@@ -16,7 +16,7 @@ export default async (req, res) => {
               fullname: body.fullname,
               password: body.password,
               role: role.id,
-              userRole: role.type,
+              userRole: role,
             }
           )
           .then((response) => response.data)
