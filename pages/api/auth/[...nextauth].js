@@ -40,7 +40,6 @@ export default NextAuth({
               password: password,
             });
             const { user, jwt } = data;
-            localStorage.setItem("role", user.userRole);
             return {
               id: user.id,
               jwt: jwt,

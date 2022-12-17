@@ -20,7 +20,6 @@ export default () => {
     setLoading(true);
     await signIn("credentials", user)
     .then((data) => {
-      localStorage.setItem("role", user.role);
       console.log('data :>> ', data);
       if(data) {
         setError(data.error);
