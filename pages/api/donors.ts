@@ -2,13 +2,14 @@ import { getToken } from "next-auth/jwt";
 import { UserSessionType } from "../../src/types/userType";
 import axios from 'axios';
 import http from "@/src/lib/api";
+import { getSession } from 'next-auth/react';
 
 export default async (req, res) => {
-  const token = await getToken({ req });
-  if (token) {
+  const session: any = await getSession({ req })
+  if (session) {
     if (req.method === "GET") {
       const query = req.query;
-      const userSession = token.user as UserSessionType;
+      const userSession = session.user as UserSessionType;
       const config = {
         headers: {
           Authorization: "Bearer " + userSession.jwt,

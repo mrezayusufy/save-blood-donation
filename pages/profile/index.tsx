@@ -9,6 +9,7 @@ import { VictoryChart, VictoryArea, VictoryAxis } from 'victory';
 import Loader from "@/components/loader";
 import axios from 'axios';
 import useSWR from 'swr';
+import jwt from 'jsonwebtoken';
 
 const dataChart = [
   { x: "حمل", y: 2 },
@@ -24,10 +25,10 @@ const dataChart = [
   { x: "دلو", y: 2 },
   { x: "حوت", y: 1 },
 ];
-const fetcher = (url, method = "GET") => axios(url, { method: method }).then(res => res.data);
+const fetcher = (url, method = "GET", token) => axios(url, { method: method , headers: { Authorization: `Bearer ${token}`}}).then(res => res.data);
 
 function Profile({data, role}) {
-  const { data: user, error } = useSWR("/api/me", fetcher);
+  const { data: user, error } = useSWR(["/api/me", "GET", data.user.jwt], fetcher);
   const [popupOpen, setPopupOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   if (!user ) return <Loader />

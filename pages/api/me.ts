@@ -1,26 +1,17 @@
-// This is an example of how to read a JSON Web Token from an API route
-import { getToken } from "next-auth/jwt";
 import axios from "axios";
-import { UserSessionType, UserType } from "@/src/types/userType";
-import { getSession } from 'next-auth/react';
+import { UserType } from "@/src/types/userType";
+import { getToken } from "next-auth/jwt";
+import { getSession } from "next-auth/react";
 
 export default async (req, res) => {
-  let session;
-  try {
-    
-    session = await getToken({req});
-    console.log('session', session)
-  } catch (error) {
-    throw new Error(error);
-  }
-  const userSession = session.user as UserSessionType;
-  const config = {
-    headers: {
-      Authorization: "Bearer " + userSession.jwt,
-    },
-  };
-
+  const session: any = await getSession({ req })
+  
   if (session) {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${session.user.jwt}`,
+      },
+    };
     if (req.method === "GET") {
       try {
         const data = await axios
@@ -45,7 +36,7 @@ export default async (req, res) => {
         user.role = roleFound.id;
         const response = await axios
           .put(
-            "http://localhost:3333/api/users/" + userSession.id,
+            "http://localhost:3333/api/users/" + user.id,
             user,
             config
           )

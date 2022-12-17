@@ -15,6 +15,7 @@ import { IUserSession } from '../../src/interfaces/IUser';
 import { GetServerSideProps } from 'next';
 import { initUrqlClient } from '@/src/urql/initUrql';
 import jwt from 'jsonwebtoken'
+import axios from 'axios';
 function Donors({ data, role }) {
   const [result] = useQuery({ query: DONORS_QUERY });
   const { data: donorList, fetching, error: donorError } = result
@@ -30,10 +31,6 @@ function Donors({ data, role }) {
   console.log('donorList :>> ', donorList);
   let token
   token = localStorage.getItem('token');
-  const secret = process.env.NEXTAUTH_SECRET
-  console.log('process.env.NEXTAUTH_SECRET', secret)
-  var decoded =  jwt.verify(token, secret);
-  console.log('decoded', decoded)
   const handleBloodgroup = (e) => { setBloodgroup(e.target.value) };
   const handleRequest = async (id) => {
     const newRequest = {
@@ -43,7 +40,7 @@ function Donors({ data, role }) {
         action: "pending"
       }
     }
-    const res = await http.post("/requests", newRequest)
+    const res = await http.post("/requests", newRequest, { headers: { "Authorization": `Bearer ${data.user.jwt}` } })
       .then((res) => res.data)
       .catch((e) => { console.log(e.message) })
     if (res) {

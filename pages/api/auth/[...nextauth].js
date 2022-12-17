@@ -2,7 +2,7 @@ import http from "@/src/lib/api";
 import NextAuth, { Awaitable } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from 'axios'
-export default NextAuth({
+export const nextAuthOptions = {
   session: {
     strategy: "jwt",
   },
@@ -77,4 +77,5 @@ export default NextAuth({
     newUser: "/profile"
   },
   secret: process.env.NEXTAUTH_SECRET,
-});
+}
+export default NextAuth(nextAuthOptions);
