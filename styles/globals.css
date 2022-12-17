@@ -39,6 +39,9 @@ select:-webkit-autofill:focus {
   margin-right: 0;
   height: 2rem;
 }
+.graph {
+  color: #89000e;
+}
 *::-webkit-scrollbar {
   background-color: rgb(255, 0, 0);
   width: 3px;
