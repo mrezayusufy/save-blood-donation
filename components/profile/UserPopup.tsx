@@ -5,6 +5,7 @@ import { mutate } from 'swr';
 import { UserType } from '../../src/types/userType';
 import axios from 'axios';
 import BloodgroupList from '../bloodgroup/bloodgroupList';
+import { useRouter } from 'next/router';
 
 export const UserPopup = ({ user: data, setPopupOpen, popupOpen, session }) => {
   const [bloodgroup, setBloodgroup] = useState(data.bloodgroup);
@@ -12,6 +13,7 @@ export const UserPopup = ({ user: data, setPopupOpen, popupOpen, session }) => {
   const [gender, setGender] = useState(data.gender ?? true);
   const [status, setStatus] = useState(data.status ?? true);
   const [role, setRole] = useState(data.userRole);
+  const router = useRouter();
   const handleChange = (e) => {
     e.preventDefault();
     const val = e.target.value;
@@ -41,11 +43,13 @@ export const UserPopup = ({ user: data, setPopupOpen, popupOpen, session }) => {
         headers: {
           Authorization: "Bearer " + jwt,
         },
-      }).then(response => response.data).catch(e => console.log('e', e))
-      if (res) {
+      }).then(response => response.data)
+      .catch(e => console.log('e', e))
+      .finally(() => {
+        router.replace("/profile");
         setPopupOpen(false);
-        mutate("/api/me")
-      }
+        mutate('/api/me');
+      });
     } catch (error) {
       console.log('error :>> ', error);
     }

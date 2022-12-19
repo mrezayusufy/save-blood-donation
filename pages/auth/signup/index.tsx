@@ -23,7 +23,7 @@ export default () => {
       console.log('data :>> ', data);
       if(data) {
         setError(data.error);
-      }  
+      }
     })
     setLoading(false);
   }

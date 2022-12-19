@@ -1,6 +1,7 @@
 import axios from "axios";
 
 export default async (req, res) => {
+  if(req.method === "GET") res.send("get method");
   if (req.method === "POST") {
     const body = req.body;
     try {

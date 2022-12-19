@@ -22,8 +22,10 @@ export const nextAuthOptions = {
               fullname: fullname,
               role: role,
             };
-            const data = await axios.post("http://localhost:3000/api/register", newUser).then((res) => res.data).catch((error) => error.message);
-            console.log('data', data)
+            const data = await axios.post("http://localhost:3000/api/register", newUser)
+            .then((res) => res.data)
+            .catch((error) => error.message);
+            console.log('nextauth', data)
             return {
               id: data.user.id,
               jwt: data.jwt
