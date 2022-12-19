@@ -9,7 +9,6 @@ import { VictoryChart, VictoryArea, VictoryAxis } from 'victory';
 import Loader from "@/components/loader";
 import axios from 'axios';
 import useSWR from 'swr';
-import jwt from 'jsonwebtoken';
 
 const dataChart = [
   { x: "حمل", y: 2 },
