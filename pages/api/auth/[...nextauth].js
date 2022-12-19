@@ -37,11 +37,12 @@ export const nextAuthOptions = {
         } else {
           // login
           try {
-            const { data } = await http.post("/auth/local", {
+            const { data } = await axios.post("http://localhost:3333/api/auth/local", {
               phone: phone,
               password: password,
             });
             const { user, jwt } = data;
+            console.log('nextauth', data)
             return {
               id: user.id,
               jwt: jwt,
